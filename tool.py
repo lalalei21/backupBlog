@@ -125,7 +125,7 @@ def handle_photo():
         elif date in date_list:  # 是同一个日期,找到在 Date 数组中的索引
             index = date_list.index(date)
             list_info[index]['arr']['link'].append(filename)
-            list_info[index]['arr']['text'].append(info)
+            list_info[index]['arr']['text'].append(texts[filename] if filename in texts.keys() else info)
             list_info[index]['arr']['type'].append('image')
             
         else:  # 不是同一个日期创建一个新的 dict
