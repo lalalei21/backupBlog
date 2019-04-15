@@ -100,17 +100,23 @@ def handle_photo():
     file_list = list_img_file(src_dir)
     list_info = []
     date_list = []
+    data_json = {}
+    with open("./source/photos/data.json", "r") as fp:
+        data_json = json.load(fp)
+        # print(data_json)
+    texts = {t['arr']['link'][i]: t['arr']['text'][i] for t in data_json['list'] for i in range(len(t['arr']['link']))}
+    print(texts)
     for i in range(len(file_list)):
         filename = file_list[i]
         date_str, info = filename.split("_")
         info, _ = info.split(".")
-        date = datetime.strptime(date_str, "%Y-%m-%d")
         year_month = '-'.join(date_str.split('-')[0:2])
+        date = datetime.strptime(year_month, "%Y-%m")
         if i == 0:  # 处理第一个文件
             new_dict = {"date": year_month, "arr": {'year': date.year,
                                                     'month': date.month,
                                                     'link': [filename],
-                                                    'text': [info],
+                                                    'text': [texts[filename] if filename in texts.keys() else info],
                                                     'type': ['image']
                                                     }
                         }
@@ -126,7 +132,7 @@ def handle_photo():
             new_dict = {"date": year_month, "arr":{'year': date.year,
                                                    'month': date.month,
                                                    'link': [filename],
-                                                   'text': [info],
+                                                   'text': [texts[filename] if filename in texts.keys() else info],
                                                    'type': ['image']
                                                    }
                         }
