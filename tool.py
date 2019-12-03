@@ -17,6 +17,7 @@ def make_directory(directory):
     """创建目录"""
     os.makedirs(directory)
 
+
 def directory_exists(directory):
     """判断目录是否存在"""
     if os.path.exists(directory):
@@ -24,14 +25,22 @@ def directory_exists(directory):
     else:
         return False
 
+
 def list_img_file(directory):
     """列出目录下所有文件，并筛选出图片文件列表返回"""
     old_list = os.listdir(directory)
+
+    def transday(x):
+        y, m, d = x.split('_')[0].split('-')
+        return 365 * y + 31 * m + d
+
+    old_list.sort(key=lambda x: transday(x), reverse=True)
     # print old_list
     new_list = []
     for filename in old_list:
         name, fileformat = filename.split(".")
-        if fileformat.lower() == "jpg" or fileformat.lower() == "png" or fileformat.lower() == "gif":
+        if fileformat.lower() == "jpg" or fileformat.lower(
+        ) == "png" or fileformat.lower() == "gif":
             new_list.append(filename)
     # print new_list
     return new_list
@@ -45,6 +54,7 @@ def print_help():
     2) small compress(4M to 500K around)
     3) smaller compress(4M to 300K around)
     """)
+
 
 def compress(choose, des_dir, src_dir, file_list):
     """压缩算法，img.thumbnail对图片进行压缩，
@@ -63,16 +73,18 @@ def compress(choose, des_dir, src_dir, file_list):
     if choose == '4':
         scale = SIZE_more_small_small
     for infile in file_list:
-        img = Image.open(src_dir+infile)
+        img = Image.open(src_dir + infile)
         # size_of_file = os.path.getsize(infile)
         w, h = img.size
-        img.thumbnail((int(w/scale), int(h/scale)))
+        img.thumbnail((int(w / scale), int(h / scale)))
         img.save(des_dir + infile)
+
+
 def compress_photo():
     '''调用压缩图片的函数
     '''
     src_dir, des_dir = "photos/", "min_photos/"
-    
+
     if directory_exists(src_dir):
         if not directory_exists(src_dir):
             make_directory(src_dir)
@@ -104,7 +116,10 @@ def handle_photo():
     with open("./source/photos/data.json", "r") as fp:
         data_json = json.load(fp)
         # print(data_json)
-    texts = {t['arr']['link'][i]: t['arr']['text'][i] for t in data_json['list'] for i in range(len(t['arr']['link']))}
+    texts = {
+        t['arr']['link'][i]: t['arr']['text'][i]
+        for t in data_json['list'] for i in range(len(t['arr']['link']))
+    }
     print(texts)
     for i in range(len(file_list)):
         filename = file_list[i]
@@ -113,29 +128,42 @@ def handle_photo():
         year_month = '-'.join(date_str.split('-')[0:2])
         date = datetime.strptime(year_month, "%Y-%m")
         if i == 0:  # 处理第一个文件
-            new_dict = {"date": year_month, "arr": {'year': date.year,
-                                                    'month': date.month,
-                                                    'link': [filename],
-                                                    'text': [texts[filename] if filename in texts.keys() else info],
-                                                    'type': ['image']
-                                                    }
-                        }
+            new_dict = {
+                "date": year_month,
+                "arr": {
+                    'year':
+                    date.year,
+                    'month':
+                    date.month,
+                    'link': [filename],
+                    'text':
+                    [texts[filename] if filename in texts.keys() else info],
+                    'type': ['image']
+                }
+            }
             date_list.append(date)
             list_info.append(new_dict)
         elif date in date_list:  # 是同一个日期,找到在 Date 数组中的索引
             index = date_list.index(date)
             list_info[index]['arr']['link'].append(filename)
-            list_info[index]['arr']['text'].append(texts[filename] if filename in texts.keys() else info)
+            list_info[index]['arr']['text'].append(texts[filename] if filename
+                                                   in texts.keys() else info)
             list_info[index]['arr']['type'].append('image')
-            
+
         else:  # 不是同一个日期创建一个新的 dict
-            new_dict = {"date": year_month, "arr":{'year': date.year,
-                                                   'month': date.month,
-                                                   'link': [filename],
-                                                   'text': [texts[filename] if filename in texts.keys() else info],
-                                                   'type': ['image']
-                                                   }
-                        }
+            new_dict = {
+                "date": year_month,
+                "arr": {
+                    'year':
+                    date.year,
+                    'month':
+                    date.month,
+                    'link': [filename],
+                    'text':
+                    [texts[filename] if filename in texts.keys() else info],
+                    'type': ['image']
+                }
+            }
             date_list.append(date)
             list_info.append(new_dict)
 
@@ -147,16 +175,15 @@ def handle_photo():
 
 # 冒泡排序
 def SortDict(list_info):
-    for num in range(len(list_info)-1,0,-1):
+    for num in range(len(list_info) - 1, 0, -1):
         for i in range(num):
-            date1 = datetime.strptime(list_info[i]['date'],"%Y-%m")
-            date2 = datetime.strptime(list_info[i+1]['date'],"%Y-%m")
+            date1 = datetime.strptime(list_info[i]['date'], "%Y-%m")
+            date2 = datetime.strptime(list_info[i + 1]['date'], "%Y-%m")
             if date1 < date2:
                 temp = list_info[i]
-                list_info[i] = list_info[i+1]
-                list_info[i+1] = temp
+                list_info[i] = list_info[i + 1]
+                list_info[i + 1] = temp
     return list_info
-
 
 
 def cut_photo():
@@ -175,13 +202,14 @@ def cut_photo():
         if file_list:
             print_help()
             for infile in file_list:
-                img = Image.open(src_dir+infile)
-                Graphics(infile=src_dir+infile, outfile=src_dir + infile).cut_by_ratio()            
+                img = Image.open(src_dir + infile)
+                Graphics(
+                    infile=src_dir + infile,
+                    outfile=src_dir + infile).cut_by_ratio()
         else:
             pass
     else:
-        print("source directory not exist!")     
-
+        print("source directory not exist!")
 
 
 def git_operation():
@@ -195,12 +223,9 @@ def git_operation():
     os.system('git commit -m "add photos"')
     os.system('git push origin master')
 
+
 if __name__ == "__main__":
-    cut_photo()        # 裁剪图片，裁剪成正方形，去中间部分
-    compress_photo()   # 压缩图片，并保存到mini_photos文件夹下
-    # git_operation()    # 提交到github仓库
-    handle_photo()     # 将文件处理成json格式，存到博客仓库中
-    
-    
-    
-    
+    cut_photo()  # 裁剪图片，裁剪成正方形，去中间部分
+    compress_photo()  # 压缩图片，并保存到mini_photos文件夹下
+    git_operation()  # 提交到github仓库
+    handle_photo()  # 将文件处理成json格式，存到博客仓库中
